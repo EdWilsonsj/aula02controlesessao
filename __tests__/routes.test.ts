@@ -64,3 +64,9 @@ describe("DELETE /todo/:id", () => {
     ]);
   });
 });
+
+it("test error", async () => {
+
+  const x: string = 5;
+  expect(x).toEqual(5);
+});
