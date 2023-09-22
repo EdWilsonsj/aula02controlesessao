@@ -11,6 +11,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Deploy to Production
+      - name: Deploy to Production 
         env:
           MY_SECRET_NAME_EX4: ${{ secrets.MY_SECRET_NAME_EX4 }}
