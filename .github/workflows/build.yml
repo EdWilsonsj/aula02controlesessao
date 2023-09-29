@@ -1,57 +1,55 @@
 name: Build, Test, and Deploy
-
+run-name: Run workflow build, test and deploy
 on:
-  push:
-    branches:
-      - main
+    push:
+        branches:
+            - "*"
+    pull_request:
+        types: [opened]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-      - name: Setup Node.js 
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+            - name: Setup node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 14
 
-      - name: Install dependencies
-        run: npm install
+            - name: Install dependencies
+              run: yarn install --frozen-lockfile
 
-      - name: Run TypeScript build
-        run: npm run build
+            - name: Build typescript project
+              run: yarn run build
 
-  test:
-    runs-on: ubuntu-latest
-    needs: build
+    test:
+        runs-on: ubuntu-latest
+        needs: [build]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+            - name: Setup node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 14
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+            - name: Install dependencies
+              run: npm install
 
-      - name: Install dependencies
-        run: npm install
+            - name: Testing app with Jest
+              run: npm run test && echo 'Tests passed!'
 
-      - name: Run tests
-        run: npm test
-
-  deploy-staging:
-    runs-on: ubuntu-latest
-    needs: [build, test]
-    if: github.ref == 'refs/heads/main' 
-    steps:
-      - name: Checkout repository 
-        uses: actions/checkout@v2
-
-      - name: Deploy to Staging
-        env:
-          MY_SECRET_NAME_EX4: ${{ secrets.MY_SECRET_NAME_EX4 }} 
-
+    deploy-staging:
+        runs-on: ubuntu-latest
+        needs: [build, test]
+        if: ${{ github.ref == 'refs/heads/main' }}
+        steps:
+            - name: deploy
+              uses: fjogeleit/http-request-action@v1
+              with:
+                  url: ${{ secrets.MY_SECRET_NAME_EX4 }}

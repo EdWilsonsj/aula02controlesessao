@@ -1,16 +1,17 @@
 name: Deploy to Production
-
+run-name: Run deploy to production
 on:
   workflow_dispatch:
 
 jobs:
   deploy-production:
     runs-on: ubuntu-latest
-
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Deploy to Production
-        env:
-          MY_SECRET_NAME_EX4: ${{ secrets.MY_SECRET_NAME_EX4 }}
+        uses: fjogeleit/http-request-action@v1
+              with:
+                  url: ${{ secrets.MY_SECRET_NAME_EX4 }}
