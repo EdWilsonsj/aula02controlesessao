@@ -1,55 +1,44 @@
-name: Build, Test, and Deploy
-run-name: Run workflow build, test and deploy
+name: Deploy to Staging
+
 on:
-    push:
-        branches:
-            - "*"
-    pull_request:
-        types: [opened]
+  push:
+    branches:
+      - main
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build:
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+    runs-on: ubuntu-latest
+    steps:
 
-            - name: Setup node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 14
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install Dependencies
+        run: npm install
+      - name: Build Project
+        run: npm run build
 
-            - name: Install dependencies
-              run: yarn install --frozen-lockfile
+  test:
 
-            - name: Build typescript project
-              run: yarn run build
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
 
-    test:
-        runs-on: ubuntu-latest
-        needs: [build]
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v3
+      - name: Run Tests
+        run: npm test
 
-            - name: Setup node.js
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 14
+  deploy-staging:
 
-            - name: Install dependencies
-              run: npm install
+    runs-on: ubuntu-latest
+    needs: [build, test]
+    steps:
 
-            - name: Testing app with Jest
-              run: npm run test && echo 'Tests passed!'
-
-    deploy-staging:
-        runs-on: ubuntu-latest
-        needs: [build, test]
-        if: ${{ github.ref == 'refs/heads/main' }}
-        steps:
-            - name: deploy
-              uses: fjogeleit/http-request-action@v1
-              with:
-                  MY_SECRET_NAME_EX4: ${{ secrets.MY_SECRET_NAME_EX4 }}
+      - name: Deploy to Staging
+        env:
+          SECRET_KEY_4: ${{ secrets.SECRET_KEY_4 }}
+        run: |
+          echo "Deploying to Staging..."
