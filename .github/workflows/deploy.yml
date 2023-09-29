@@ -14,4 +14,4 @@ jobs:
       - name: Deploy to Production
         uses: fjogeleit/http-request-action@v1
               with:
-                  url: ${{ secrets.MY_SECRET_NAME_EX4 }}
+                 MY_SECRET_NAME_EX4: ${{ secrets.MY_SECRET_NAME_EX4 }}
